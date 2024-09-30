@@ -40,11 +40,24 @@ public class CategoryService {
 
     public Page<CategoryResponseDTO> searchCategory(String name, String codeCategory,
                                                     Date startDate, Date endDate, Pageable pageable) {
-        return categoryRepo.searchCategories(name,codeCategory,startDate,endDate, pageable);
+        if(codeCategory != null) {
+            codeCategory = "%" + codeCategory + "%";
+        }
+        if(name != null) {
+            name = "%" + name + "%";
+        }
+        Page<Category> result = categoryRepo.searchCategories(name,codeCategory,startDate,endDate, pageable);
+        return categoryMapper.ToCategoryResponseDTOPage(result);
     }
 
     public ResponseEntity<byte[]> exportExcel (String fileName, String name, String codeCategory,
                                        Date startDate, Date endDate) {
+        if(codeCategory != null) {
+            codeCategory = "%" + codeCategory + "%";
+        }
+        if(name != null) {
+            name = "%" + name + "%";
+        }
             return excelExportService.exportCategoriesToExcel(searchCategory(
                     name, codeCategory, startDate, endDate, null).getContent(),
                     fileName);

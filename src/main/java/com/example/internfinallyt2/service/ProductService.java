@@ -54,6 +54,15 @@ public class ProductService {
     public Page<ProductSearchResponseDTO> searchProducts(String name, String productCode,
                                                          Date startDate, Date endDate,
                                                          String categoryCode, Pageable pageable) {
+        if(categoryCode != null) {
+            categoryCode = "%" + categoryCode + "%";
+        }
+        if(name != null) {
+            name = "%" + name + "%";
+        }
+        if (productCode != null) {
+            productCode = "%" + productCode + "%";
+        }
         Page<Product> result = productRepo.searchProducts(name, productCode, startDate, endDate, categoryCode, pageable);
         return productSearchResponseMapper.ToProductSearchResponseDTOPage(result);
     }
@@ -61,6 +70,15 @@ public class ProductService {
     public ResponseEntity<byte[]> exportExcel (String name, String productCode,
                                                Date startDate, Date endDate,
                                                String categoryCode, String fileName) {
+        if(categoryCode != null) {
+            categoryCode = "%" + categoryCode + "%";
+        }
+        if(name != null) {
+            name = "%" + name + "%";
+        }
+        if (productCode != null) {
+            productCode = "%" + productCode + "%";
+        }
         return excelExportService.exportProductsToExcel(searchProducts(
                         name, productCode, startDate, endDate, categoryCode,null).getContent(),
                 fileName);
@@ -131,21 +149,21 @@ public class ProductService {
                     productCategory.setStatus(Status.INACTIVE);
                     productCategoryRepo.save(productCategory);
                 } else {
-                    productCategory.setStatus(Status.ACTIVE);
-                    productCategoryRepo.save(productCategory);
+                    if(productCategory.getStatus() == Status.INACTIVE) {
+                        productCategory.setStatus(Status.ACTIVE);
+                        productCategoryRepo.save(productCategory);
+                    }
                     selectedCategoryIds.remove(productCategory.getCategory().getId());
                 }
             }
-            for (Long categoryId : selectedCategoryIds) {
-                Category category = categoryRepo.findById(categoryId).orElse(null);
-                if (category != null) {
+            List<Category> categoryNew = categoryRepo.findAllById(selectedCategoryIds);
+            if(categoryNew.size() > 0) {
+                for (Category category : categoryNew) {
                     ProductCategory newProductCategory = new ProductCategory();
                     newProductCategory.setProduct(product);
                     newProductCategory.setCategory(category);
                     newProductCategory.setStatus(Status.ACTIVE);
                     productCategoryRepo.save(newProductCategory);
-                } else {
-                    throw new ResourceNotFoundException("Category", categoryId);
                 }
             }
             return productResponseMapper.toProductDTO(productRepo.save(product));

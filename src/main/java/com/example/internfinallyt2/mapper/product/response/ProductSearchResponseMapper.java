@@ -7,6 +7,7 @@ import com.example.internfinallyt2.entity.Category;
 import com.example.internfinallyt2.entity.Product;
 import com.example.internfinallyt2.mapper.ProductCategoryMapper;
 import com.example.internfinallyt2.mapper.category.response.CategoryResponseMapper;
+import com.example.internfinallyt2.utils.VariablePath;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -37,5 +38,8 @@ public interface ProductSearchResponseMapper {
         List<Long> listId = list.stream().map(CategoryResponseDTO::getId).toList();
         productSearchResponseDTO.setCategory(String.join(", ", listCode));
         productSearchResponseDTO.setCategoryId(listId.toString());
+        if (productSearchResponseDTO.getUrlImage() != null) {
+            productSearchResponseDTO.setUrlImage(VariablePath.urlImage + productSearchResponseDTO.getUrlImage());
+        }
     }
 }

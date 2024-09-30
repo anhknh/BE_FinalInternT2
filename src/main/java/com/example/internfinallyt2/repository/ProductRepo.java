@@ -25,13 +25,13 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
             " LEFT JOIN FETCH p.productCategories pc" +
             " LEFT JOIN FETCH pc.category c" +
             " WHERE p.status = 1 AND pc.status = 1" +
-            " AND (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')))" +
-            " AND (:productCode IS NULL OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :productCode, '%')))" +
+            " AND (:name IS NULL OR LOWER(p.name) LIKE LOWER( :name))" +
+            " AND (:productCode IS NULL OR LOWER(p.productCode) LIKE LOWER( :productCode))" +
             " AND (:startDate IS NULL OR p.createdDate >= :startDate)" +
             " AND (:endDate IS NULL OR p.createdDate <= :endDate)" +
             " AND (:categoryCode IS NULL OR EXISTS (" +
             " SELECT 1 FROM ProductCategory pc2 JOIN pc2.category c2" +
-            " WHERE pc2.product = p AND pc2.status=1 AND c2.categoryCode LIKE LOWER(CONCAT('%', :categoryCode, '%'))" +
+            " WHERE pc2.product = p AND pc2.status=1 AND c2.categoryCode LIKE LOWER( :categoryCode)" +
             "))")
     Page<Product> searchProducts(
             @Param("name") String name,
