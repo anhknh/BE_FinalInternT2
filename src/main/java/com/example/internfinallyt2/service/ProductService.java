@@ -133,7 +133,7 @@ public class ProductService {
         if (selectedCategory.size() <= 0) {
             throw new ResourceNotFoundException("Category", Arrays.asList(productRequestDTO.getCategoryIds()));
         }
-        if (product != null) {
+        if (product != null && product.getStatus() == Status.ACTIVE) {
             List<ProductCategory> productCategoryList = product.getProductCategories();
             List<Long> selectedCategoryIds = selectedCategory.stream()
                     .map(Category::getId)
@@ -177,7 +177,7 @@ public class ProductService {
             throw new ResourceNotFoundException("Product", id);
         }
         Product product = productRepo.findById(id).orElse(null);
-        if (product != null) {
+        if (product != null && product.getStatus() == Status.ACTIVE) {
             product.setStatus(Status.INACTIVE);
             return productResponseMapper.toProductDTO(product);
         }

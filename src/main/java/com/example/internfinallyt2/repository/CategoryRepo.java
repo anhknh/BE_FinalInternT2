@@ -1,7 +1,7 @@
 package com.example.internfinallyt2.repository;
 
-import com.example.internfinallyt2.dtos.category.response.CategoryResponseDTO;
 import com.example.internfinallyt2.entity.Category;
+import com.example.internfinallyt2.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class CategoryService {
             throw new ResourceNotFoundException("Category", categoryRequestDTO.getId());
         }
         Category category = categoryRepo.findById(categoryRequestDTO.getId()).orElse(null);
-        if (category != null) {
+        if (category != null && category.getStatus() == Status.ACTIVE) {
             category.setName(categoryRequestDTO.getName());
             category.setUrlImage(fileUpload.saveFile(categoryRequestDTO.getImage(), category.getUrlImage()));
             category.setStatus(categoryRequestDTO.getStatus() == 1 ? Status.ACTIVE : Status.INACTIVE);
@@ -110,7 +109,7 @@ public class CategoryService {
             throw new ResourceNotFoundException("Category", id);
         }
         Category category = categoryRepo.findById(id).orElse(null);
-        if (category != null) {
+        if (category != null && category.getStatus() == Status.ACTIVE) {
             category.setStatus(Status.INACTIVE);
             return categoryMapper.toCategoryDTO(categoryRepo.save(category));
         }
