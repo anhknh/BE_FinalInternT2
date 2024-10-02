@@ -9,9 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
+import java.util.List;
 
 
 public interface CategoryRepo extends JpaRepository<Category, Long> {
+
+    List<Category> findByStatusOrderByCategoryCode(Status status);
 
     @Query("SELECT c " +
             "FROM Category c " +
@@ -27,5 +30,7 @@ public interface CategoryRepo extends JpaRepository<Category, Long> {
             @Param("endDate") Date endDate,
             Pageable pageable);
 
-    boolean existsByCategoryCode(String categoryCode);
+    boolean existsByCategoryCodeAndStatus(String categoryCode, Status status);
+
+    List<Category> findAllByIdInAndStatus(List<Long> ids, Status status);
 }

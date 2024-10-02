@@ -1,5 +1,6 @@
 package com.example.internfinallyt2.repository;
 
+import com.example.internfinallyt2.entity.Category;
 import com.example.internfinallyt2.entity.Product;
 import com.example.internfinallyt2.enums.Status;
 import org.springframework.data.domain.Page;
@@ -41,6 +42,8 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
             @Param("endDate") Date endDate,
             @Param("categoryCode") String categoryCode,
             Pageable pageable);
-    boolean existsByproductCode(String productCode);
+    boolean existsByproductCodeAndStatus(String productCode, Status status);
+
+
 
 }

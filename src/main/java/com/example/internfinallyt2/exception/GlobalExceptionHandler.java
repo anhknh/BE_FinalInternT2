@@ -1,5 +1,6 @@
 package com.example.internfinallyt2.exception;
 
+import com.example.internfinallyt2.exception.customValidation.CategoryInUseException;
 import com.example.internfinallyt2.exception.customValidation.CustomIOException;
 import com.example.internfinallyt2.exception.customValidation.DuplicateCourseCodeException;
 import com.example.internfinallyt2.exception.customValidation.ResourceNotFoundException;
@@ -72,6 +73,14 @@ public class GlobalExceptionHandler {
         Locale locale = LocaleContextHolder.getLocale();
 
         String errorMessage = messageSource.getMessage("error.duplicate", new Object[]{ex.getResourceName(), ex.getResourceCode()}, locale);
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler({CategoryInUseException.class})
+    public ResponseEntity<String> handleCategoryInUseException(CategoryInUseException ex) {
+        Locale locale = LocaleContextHolder.getLocale();
+
+        String errorMessage = messageSource.getMessage("error.inuse", new Object[]{ex.getResourceName(), ex.getResourceCode()}, locale);
 
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }

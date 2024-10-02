@@ -97,10 +97,10 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        if(productRepo.existsByproductCode(productRequestDTO.getProductCode())) {
+        if(productRepo.existsByproductCodeAndStatus(productRequestDTO.getProductCode(), Status.ACTIVE)) {
             throw new DuplicateCourseCodeException("Product", productRequestDTO.getProductCode());
         }
-        List<Category> selectedCategory = categoryRepo.findAllById(Arrays.asList(productRequestDTO.getCategoryIds()));
+        List<Category> selectedCategory = categoryRepo.findAllByIdInAndStatus(Arrays.asList(productRequestDTO.getCategoryIds()), Status.ACTIVE);
         if (selectedCategory.size() <= 0) {
             throw new ResourceNotFoundException("Category", Arrays.asList(productRequestDTO.getCategoryIds()));
         }
@@ -129,7 +129,7 @@ public class ProductService {
             throw new ResourceNotFoundException("Product", productRequestDTO.getId());
         }
         Product product = productRepo.findById(productRequestDTO.getId()).orElse(null);
-        List<Category> selectedCategory = categoryRepo.findAllById(Arrays.asList(productRequestDTO.getCategoryIds()));
+        List<Category> selectedCategory = categoryRepo.findAllByIdInAndStatus(Arrays.asList(productRequestDTO.getCategoryIds()), Status.ACTIVE);
         if (selectedCategory.size() <= 0) {
             throw new ResourceNotFoundException("Category", Arrays.asList(productRequestDTO.getCategoryIds()));
         }
@@ -156,7 +156,7 @@ public class ProductService {
                     selectedCategoryIds.remove(productCategory.getCategory().getId());
                 }
             }
-            List<Category> categoryNew = categoryRepo.findAllById(selectedCategoryIds);
+            List<Category> categoryNew = categoryRepo.findAllByIdInAndStatus(selectedCategoryIds, Status.ACTIVE);
             if(categoryNew.size() > 0) {
                 for (Category category : categoryNew) {
                     ProductCategory newProductCategory = new ProductCategory();
@@ -165,8 +165,12 @@ public class ProductService {
                     newProductCategory.setStatus(Status.ACTIVE);
                     productCategoryRepo.save(newProductCategory);
                 }
+                return productResponseMapper.toProductDTO(productRepo.save(product));
             }
-            return productResponseMapper.toProductDTO(productRepo.save(product));
+            if (selectedCategoryIds.isEmpty()) {
+                return productResponseMapper.toProductDTO(productRepo.save(product));
+            }
+            throw new ResourceNotFoundException("Category", selectedCategoryIds);
         }
         throw new ResourceNotFoundException("Product", productRequestDTO.getId());
     }

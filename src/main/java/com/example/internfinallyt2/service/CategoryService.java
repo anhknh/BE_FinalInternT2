@@ -4,10 +4,12 @@ import com.example.internfinallyt2.dtos.category.request.CategoryRequestDTO;
 import com.example.internfinallyt2.dtos.category.response.CategoryResponseDTO;
 import com.example.internfinallyt2.entity.Category;
 import com.example.internfinallyt2.enums.Status;
+import com.example.internfinallyt2.exception.customValidation.CategoryInUseException;
 import com.example.internfinallyt2.exception.customValidation.DuplicateCourseCodeException;
 import com.example.internfinallyt2.exception.customValidation.ResourceNotFoundException;
 import com.example.internfinallyt2.mapper.category.response.CategoryResponseMapper;
 import com.example.internfinallyt2.repository.CategoryRepo;
+import com.example.internfinallyt2.repository.ProductCategoryRepo;
 import com.example.internfinallyt2.utils.ExcelExportService;
 import com.example.internfinallyt2.utils.FileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,14 @@ public class CategoryService {
     @Autowired
     CategoryRepo categoryRepo;
     @Autowired
+    ProductCategoryRepo productCategoryRepo;
+    @Autowired
     FileUpload fileUpload;
     @Autowired
     ExcelExportService excelExportService;
 
     public List<CategoryResponseDTO> getAllCategories() {
-        List<Category> categories = categoryRepo.findAll();
+        List<Category> categories = categoryRepo.findByStatusOrderByCategoryCode(Status.ACTIVE);
         return categoryMapper.toListCategoryDTO(categories);
     }
 
@@ -75,7 +79,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDTO createCategory(CategoryRequestDTO categoryRequestDTO) {
-        if(categoryRepo.existsByCategoryCode(categoryRequestDTO.getCategoryCode())) {
+        if(categoryRepo.existsByCategoryCodeAndStatus(categoryRequestDTO.getCategoryCode(), Status.ACTIVE)) {
             throw new DuplicateCourseCodeException("CategoryCode", categoryRequestDTO.getCategoryCode());
         }
         Category category = new Category();
@@ -110,6 +114,10 @@ public class CategoryService {
         }
         Category category = categoryRepo.findById(id).orElse(null);
         if (category != null && category.getStatus() == Status.ACTIVE) {
+            if (productCategoryRepo.existsByCategory_CategoryCodeAndStatusAndProduct_Status(category.getCategoryCode(),
+                    Status.ACTIVE, Status.ACTIVE)) {
+                throw new CategoryInUseException(category.getName(), category.getCategoryCode());
+            }
             category.setStatus(Status.INACTIVE);
             return categoryMapper.toCategoryDTO(categoryRepo.save(category));
         }
