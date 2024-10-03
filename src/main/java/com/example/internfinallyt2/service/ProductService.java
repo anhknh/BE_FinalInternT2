@@ -8,6 +8,7 @@ import com.example.internfinallyt2.entity.Product;
 import com.example.internfinallyt2.entity.ProductCategory;
 import com.example.internfinallyt2.enums.Status;
 import com.example.internfinallyt2.exception.customValidation.DuplicateCourseCodeException;
+import com.example.internfinallyt2.exception.customValidation.ListCategoryNotFoundException;
 import com.example.internfinallyt2.exception.customValidation.ResourceNotFoundException;
 import com.example.internfinallyt2.mapper.product.response.ProductResponseMapper;
 import com.example.internfinallyt2.mapper.product.response.ProductSearchResponseMapper;
@@ -101,8 +102,8 @@ public class ProductService {
             throw new DuplicateCourseCodeException("Product", productRequestDTO.getProductCode());
         }
         List<Category> selectedCategory = categoryRepo.findAllByIdInAndStatus(Arrays.asList(productRequestDTO.getCategoryIds()), Status.ACTIVE);
-        if (selectedCategory.size() <= 0) {
-            throw new ResourceNotFoundException("Category", Arrays.asList(productRequestDTO.getCategoryIds()));
+        if (selectedCategory.size() < productRequestDTO.getCategoryIds().length) {
+            throw new ListCategoryNotFoundException("Category", productRequestDTO.getCategoryIds());
         }
         Product product = new Product();
         product.setProductCode(productRequestDTO.getProductCode());
@@ -130,8 +131,8 @@ public class ProductService {
         }
         Product product = productRepo.findById(productRequestDTO.getId()).orElse(null);
         List<Category> selectedCategory = categoryRepo.findAllByIdInAndStatus(Arrays.asList(productRequestDTO.getCategoryIds()), Status.ACTIVE);
-        if (selectedCategory.size() <= 0) {
-            throw new ResourceNotFoundException("Category", Arrays.asList(productRequestDTO.getCategoryIds()));
+        if (selectedCategory.size() < productRequestDTO.getCategoryIds().length) {
+            throw new ListCategoryNotFoundException("Category", productRequestDTO.getCategoryIds());
         }
         if (product != null && product.getStatus() == Status.ACTIVE) {
             List<ProductCategory> productCategoryList = product.getProductCategories();

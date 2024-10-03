@@ -1,9 +1,6 @@
 package com.example.internfinallyt2.exception;
 
-import com.example.internfinallyt2.exception.customValidation.CategoryInUseException;
-import com.example.internfinallyt2.exception.customValidation.CustomIOException;
-import com.example.internfinallyt2.exception.customValidation.DuplicateCourseCodeException;
-import com.example.internfinallyt2.exception.customValidation.ResourceNotFoundException;
+import com.example.internfinallyt2.exception.customValidation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.MessageSource;
@@ -64,6 +61,14 @@ public class GlobalExceptionHandler {
         Locale locale = LocaleContextHolder.getLocale();
 
         String errorMessage = messageSource.getMessage("error.notfound", new Object[]{ex.getResourceName(), ex.getResourceId()}, locale);
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler({ListCategoryNotFoundException.class})
+    public ResponseEntity<String> handleListCategoryNotFoundException(ListCategoryNotFoundException ex) {
+        Locale locale = LocaleContextHolder.getLocale();
+
+        String errorMessage = messageSource.getMessage("error.listnotfound", new Object[]{}, locale);
 
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
